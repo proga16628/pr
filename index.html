@@ -41,8 +41,6 @@
             max-width: 100%;
         }
     </style>
-    <!-- Підключення бібліотеки Pica для стиснення зображень -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pica/8.0.1/pica.min.js"></script>
 </head>
 <body>
 
@@ -60,11 +58,6 @@
 </div>
 
 <script>
-    // Перевірка, чи бібліотека Pica доступна
-    if (typeof Pica === "undefined") {
-        alert("Pica library is not loaded correctly.");
-    }
-
     document.getElementById("uploadForm").addEventListener("submit", function(event) {
         event.preventDefault();
         const fileInput = document.getElementById("imageInput");
@@ -83,29 +76,23 @@
             image.onload = function() {
                 // Створення канваса для стиснення
                 const canvas = document.createElement('canvas');
-                const pica = new Pica(); // Використовуємо без `window.`
+                const ctx = canvas.getContext('2d');
 
                 // Встановлюємо розміри стиснутого зображення (наприклад, 500px по ширині)
                 const width = 500;
                 const height = (image.height / image.width) * width;  // Пропорційне зменшення
-                
-                // Виконання стиснення
-                pica.resize(image, canvas, {
-                    unsharpAmount: 80,
-                    unsharpThreshold: 2,
-                    quality: 3
-                })
-                .then(function(result) {
-                    // Показуємо стиснуте зображення
-                    const resultDiv = document.getElementById("result");
-                    const compressedImage = document.createElement("img");
-                    compressedImage.src = canvas.toDataURL();
-                    resultDiv.innerHTML = ""; // Очищаємо попередній результат
-                    resultDiv.appendChild(compressedImage);
-                })
-                .catch(function(error) {
-                    alert("Compression failed: " + error);
-                });
+                canvas.width = width;
+                canvas.height = height;
+
+                // Малюємо зображення на канвасі
+                ctx.drawImage(image, 0, 0, width, height);
+
+                // Показуємо стиснуте зображення
+                const resultDiv = document.getElementById("result");
+                const compressedImage = document.createElement("img");
+                compressedImage.src = canvas.toDataURL("image/jpeg", 0.7);  // 0.7 - якість зображення
+                resultDiv.innerHTML = ""; // Очищаємо попередній результат
+                resultDiv.appendChild(compressedImage);
             };
         };
         
